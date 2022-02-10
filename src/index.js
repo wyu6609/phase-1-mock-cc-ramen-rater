@@ -1,84 +1,136 @@
-// write your code here
-// DOM NODES
-const insertImage = document.querySelector(".detail-image");
-const insertName = document.querySelector(".name");
-const insertRestaurant = document.querySelector(".restaurant");
-const insertRating = document.querySelector("#rating-display");
-const insertComments = document.querySelector("#comment-display");
-// DOM FORM NODES
-const form = document.querySelector("#new-ramen");
-const newName = document.querySelector("#new-name");
+/////////////////////////////////////////////////////////////////////
+//GLOBAL CONSTANTS
+const uri = "http://localhost:3000/ramens";
+//DOM NODES
+const insertRamenMenu = document.getElementById("ramen-menu");
+const ramenImageDisplay = document.querySelector(".detail-image");
+const ramenNameDisplay = document.querySelector(".name");
+const ramenRestaurantDisplay = document.querySelector(".restaurant");
+const ramenRatingDisplay = document.getElementById("rating-display");
+const ramenCommentDisplay = document.getElementById("comment-display");
+//DOM NEW-RAMEN FORM NODES
+const ramenForm = document.getElementById("new-ramen");
+const newName = document.getElementById("new-name");
+const newRestaurant = document.getElementById("new-restaurant");
+const newImage = document.getElementById("new-image");
+const newRating = document.getElementById("new-rating");
+const newComment = document.getElementById("new-comment");
+//DOM EDIT-RAMEN FORM NODES
+const editRamenForm = document.getElementById("edit-ramen");
+const editRamenRating = document.getElementById("edit-rating");
+const editRamenComment = document.getElementById("edit-comment");
+/////////////////////////////////////////////////////////////////////
+//start the webAPP
+fetchRamenAPI();
 
-const newRestaurant = document.querySelector("#new-restaurant");
-const newImage = document.querySelector("#new-image");
-const newRating = document.querySelector("#new-rating");
-const newComment = document.querySelector("#new-comment");
+//submit form button
+ramenForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  addNewRamenObj();
+});
+editRamenForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  //replace display info with form information
+  //editDisplay()
+  ramenRatingDisplay.textContent = editRamenRating.value;
+  ramenCommentDisplay.textContent = editRamenComment.value;
+  //create Edited object
+  const newCommentRating = {
+    rating: editRamenRating.value,
+    comment: editRamenComment.value,
+  };
 
-//DOM RENDER FUNCTION
-function renderMenu(el) {
-  //Build menu
-  let menu = document.createElement("img");
-  menu.src = el.image;
-  menu.addEventListener("click", () => {
-    insertImage.src = el.image;
-    insertName.innerHTML = el.name;
-    insertRestaurant.innerHTML = el.restaurant;
-    insertRating.innerHTML = el.rating;
-    insertComments.innerHTML = el.comment;
-  });
+  //PATCH REQUEST edit
+});
 
-  //add menu to DOM
-  document.querySelector("#ramen-menu").appendChild(menu);
-}
-
-//Build new object from Form input
-function addNewRamen() {
-  //build new ramen Obj object
-  console.log(newName.value);
+////////////////////////////////////////////
+// FORM BUTTON FUNCTIONALITY
+//submit button functionality
+function addNewRamenObj() {
+  let jsonLength = insertRamenMenu.childElementCount;
+  jsonLength++;
+  //create new RamenObj
   let newRamenObj = {
+    id: jsonLength,
     name: newName.value,
     restaurant: newRestaurant.value,
     image: newImage.value,
     rating: newRating.value,
     comment: newComment.value,
   };
-  return newRamenObj;
+  //POST newOBJ
+  postRequest(newRamenObj);
+  renderObj(newRamenObj);
 }
-//submit button functionality
 
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
-  let data = addNewRamen();
-
-  fetch("http://localhost:3000/ramens", {
-    method: "POST", // or 'PUT'
+////////////////////////////////////////////
+//FETCH APIs
+//GET request fetch api
+function fetchRamenAPI() {
+  fetch(uri, {
+    method: "GET", // or 'PUT'
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(data),
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log("Success:", data);
-      location.reload();
+      console.log("Success:");
+      iterateData(data);
+      firstLoad(data);
     })
     .catch((error) => {
       console.error("Error:", error);
     });
-});
-
-//Fetch requests
-// get fetch for ramen resources
-
-function getAllRamens() {
-  fetch("http://localhost:3000/ramens")
-    .then((resp) => resp.json())
-    .then((ramenData) => initialize(ramenData));
 }
 
-//INITIAL RENDER
-function initialize(ramenData) {
-  ramenData.forEach((el) => renderMenu(el));
+//POST REQUEST fetch api
+function postRequest(newRamenObj) {
+  fetch(uri, {
+    method: "POST", // or 'PUT'
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(newRamenObj),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Success:", data);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
 }
 
-getAllRamens();
+////////////////////////////////////////////
+//first load shows ramen obj 1
+function firstLoad(ramenArray) {
+  addToRamenDisplay(ramenArray[0]);
+}
+
+//iterate the json iterateData
+function iterateData(ramenArray) {
+  ramenArray.forEach((ramenObj) => renderObj(ramenObj));
+}
+//render RamenObj
+function renderObj(ramenObj) {
+  createRamenImage(ramenObj);
+}
+function createRamenImage(ramenObj) {
+  let ramenImage = document.createElement("img");
+  ramenImage.id = ramenObj.id;
+  ramenImage.src = ramenObj.image;
+  insertRamenMenu.appendChild(ramenImage);
+  document.getElementById(ramenObj.id).addEventListener("click", () => {
+    //add to the ramen-detail container
+    addToRamenDisplay(ramenObj);
+  });
+}
+
+function addToRamenDisplay(ramenObj) {
+  ramenImageDisplay.src = ramenObj.image;
+  ramenNameDisplay.textContent = ramenObj.name;
+  ramenRestaurantDisplay.textContent = ramenObj.restaurant;
+  ramenRatingDisplay.textContent = ramenObj.rating;
+  ramenCommentDisplay.textContent = ramenObj.comment;
+}
