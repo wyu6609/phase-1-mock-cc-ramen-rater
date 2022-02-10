@@ -19,6 +19,7 @@ const newComment = document.getElementById("new-comment");
 const editRamenForm = document.getElementById("edit-ramen");
 const editRamenRating = document.getElementById("edit-rating");
 const editRamenComment = document.getElementById("edit-comment");
+const deleteButton = document.getElementById("delete-button");
 /////////////////////////////////////////////////////////////////////
 //start the webAPP
 fetchRamenAPI();
@@ -43,10 +44,11 @@ editRamenForm.addEventListener("submit", (event) => {
     comment: editRamenComment.value,
   };
   patchRequest(newCommentRating, selectedRamen);
-
-  //PATCH REQUEST edit
 });
-
+deleteButton.addEventListener("click", () => {
+  let selectedRamen = ramenImageDisplay.id;
+  deleteRequest(selectedRamen);
+});
 ////////////////////////////////////////////
 // FORM BUTTON FUNCTIONALITY
 //submit button functionality
@@ -117,6 +119,24 @@ function patchRequest(newCommentRating, selectedRamen) {
     .then((response) => response.json())
     .then((data) => {
       console.log("Success:", data);
+      location.reload();
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+}
+//DELETE REQUEST
+function deleteRequest(selectedRamen) {
+  fetch(`${uri}/${selectedRamen}`, {
+    method: "DELETE", // or 'PUT'
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Success:");
+      location.reload();
     })
     .catch((error) => {
       console.error("Error:", error);
