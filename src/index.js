@@ -34,11 +34,15 @@ editRamenForm.addEventListener("submit", (event) => {
   //editDisplay()
   ramenRatingDisplay.textContent = editRamenRating.value;
   ramenCommentDisplay.textContent = editRamenComment.value;
+  let selectedRamen = ramenImageDisplay.id;
+  console.log(selectedRamen);
+
   //create Edited object
   const newCommentRating = {
     rating: editRamenRating.value,
     comment: editRamenComment.value,
   };
+  patchRequest(newCommentRating, selectedRamen);
 
   //PATCH REQUEST edit
 });
@@ -101,7 +105,23 @@ function postRequest(newRamenObj) {
       console.error("Error:", error);
     });
 }
-
+//PATCH request
+function patchRequest(newCommentRating, selectedRamen) {
+  fetch(`${uri}/${selectedRamen}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(newCommentRating),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Success:", data);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+}
 ////////////////////////////////////////////
 //first load shows ramen obj 1
 function firstLoad(ramenArray) {
@@ -118,8 +138,8 @@ function renderObj(ramenObj) {
 }
 function createRamenImage(ramenObj) {
   let ramenImage = document.createElement("img");
-  ramenImage.id = ramenObj.id;
   ramenImage.src = ramenObj.image;
+  ramenImage.id = ramenObj.id;
   insertRamenMenu.appendChild(ramenImage);
   document.getElementById(ramenObj.id).addEventListener("click", () => {
     //add to the ramen-detail container
@@ -129,6 +149,7 @@ function createRamenImage(ramenObj) {
 
 function addToRamenDisplay(ramenObj) {
   ramenImageDisplay.src = ramenObj.image;
+  ramenImageDisplay.id = ramenObj.id;
   ramenNameDisplay.textContent = ramenObj.name;
   ramenRestaurantDisplay.textContent = ramenObj.restaurant;
   ramenRatingDisplay.textContent = ramenObj.rating;
